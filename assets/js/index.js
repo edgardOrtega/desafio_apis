@@ -10,7 +10,7 @@ async function datos() {
     let data
     try {
     const res = await fetch('https://mindicador.cl/api');
-/*         if(!res.ok) throw new Error('Api fallo'); */
+
      data = await res.json();
     }catch(error) {
         const res2 = await fetch('mindicador.json');
@@ -24,6 +24,7 @@ async function datos() {
             `
           });
     }
+    //crear el select de nuestro index.html realizando un arreglo con filter y map para filtrar los nombres de los indicadores y su valor
     const indicadores = Object.keys(data).filter(key => key !== 'version' && key !== 'autor' && key !== 'fecha').map(key => ({
         codigo: data[key].codigo,
         valor: data[key].valor
@@ -35,14 +36,17 @@ async function datos() {
 }
 
 async function renderizarGrafico(){
-    const selectedName = select.value; 
+    const selectedName = select.value;
+    // buscar por el indicador seleccionado en el select y agregarla en el fetch
     datos = await fetch(`https://mindicador.cl/api/${selectedName.toLowerCase()}`); // Usar el nombre (en minúsculas) en la URL
     const datas = await datos.json();
       /* realizando data para graficacion */
-      const labels = datas.serie.slice(0,10).map((item) => {return item.fecha});
+      const labels = datas.serie.slice(0,10).map((item) => {return item.fecha.substring(0, 10)});
       //console.log(labels);
       const valores = datas.serie.slice(0,10).map((item) => {return item.valor});
       //console.log(valores);
+
+      //creando configuracion de la grafica agregando los dos arreglos creados con las fechas y valores
       const config = {
           type: 'line',
           data: {
